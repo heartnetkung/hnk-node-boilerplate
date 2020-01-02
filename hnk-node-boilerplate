@@ -1,0 +1,80 @@
+#!/usr/bin/env node
+const rootPath = require("app-root-path").path;
+const fs = require("fs-extra");
+const { join } = require("path");
+const { execSync } = require("child_process");
+const sortPackageJson = require("sort-package-json");
+
+const PACKAGE_PATH = join(rootPath, "package.json");
+const PACKAGE_OBJ = {
+	jest: {
+		testEnvironment: "node"
+	},
+	husky: {
+		hooks: {
+			"pre-commit": "pretty-quick --staged",
+			"pre-push": "jest"
+		}
+	},
+	prettier: {
+		useTabs: true
+	},
+	scripts: {
+		test: "jest",
+		"snyk:init": "snyk auth",
+		"snyk:test": "snyk test"
+	}
+};
+
+const README_PATH = join(rootPath, "readme.md");
+const getReadme = name =>
+	`# ${name}\n\n## Description\n\n ## Example\n\n ## API\n\n`;
+
+const handlePackage = () => {
+	try {
+		var packageObj = require(PACKAGE_PATH);
+		packageObj = Object.assign(PACKAGE_OBJ, packageObj);
+		packageObj = sortPackageJson(packageObj);
+		fs.writeFileSync(PACKAGE_PATH, JSON.stringify(packageObj, null, 2));
+		if (!fs.existsSync(README_PATH))
+			fs.writeFileSync(README_PATH, getReadme(packageObj.name));
+	} catch (e) {
+		console.error("Package Manipulation Failed.");
+		throw e;
+	}
+};
+
+const installDev = () => {
+	try {
+		execSync("yarn add --dev husky jest prettier pretty-quick snyk", {
+			stdio: ["ignore", "inherit", "inherit"],
+			cwd: rootPath
+		});
+	} catch (e) {
+		console.error("Package Instalation Failed.");
+		throw e;
+	}
+};
+
+const copyFiles = () => {
+	try {
+		fs.copySync(join(__dirname, "/assets"), rootPath, { overwrite: false });
+	} catch (e) {
+		console.error("File Copy Failed.");
+		throw e;
+	}
+};
+
+try {
+	//TODO use inquirer for express and node
+	//TODO git username check
+	//TODO use chalk
+	//TODO marmelab/react-admin
+	//TODO example test case
+	//mock server pollyjs
+	handlePackage();
+	installDev();
+	copyFiles();
+} catch (e) {
+	console.error(e);
+}

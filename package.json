@@ -1,0 +1,13 @@
+{
+  "name": "hnk-node-boilerplate",
+  "version": "1.0.0",
+  "bin": "./hnk-node-boilerplate",
+  "repository": "git@github.com:heartnetkung/hnk-node-boilerplate.git",
+  "author": "heartnetkung <heartnetkung@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "app-root-path": "^3.0.0",
+    "fs-extra": "^8.1.0",
+    "sort-package-json": "^1.35.0"
+  }
+}
